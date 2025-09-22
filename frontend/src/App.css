@@ -1,0 +1,294 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    /* Light theme colors */
+    --background: 0 0% 100%;
+    --foreground: 218 11% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 218 11% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 218 11% 12%;
+    --primary: 218 11% 12%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 214 14% 96%;
+    --secondary-foreground: 218 11% 12%;
+    --muted: 214 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 214 14% 96%;
+    --accent-foreground: 218 11% 12%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 218 11% 12%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Pure black minimal theme */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 96%;
+    --card: 0 0% 4%;
+    --card-foreground: 0 0% 96%;
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 96%;
+    --primary: 0 0% 96%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 8%;
+    --secondary-foreground: 0 0% 96%;
+    --muted: 0 0% 8%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 0 0% 8%;
+    --accent-foreground: 0 0% 96%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
+    --ring: 0 0% 96%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+    letter-spacing: -0.025em;
+  }
+}
+
+/* App specific styles */
+.App {
+  @apply min-h-screen bg-background text-foreground p-6;
+}
+
+.container {
+  @apply max-w-7xl mx-auto;
+}
+
+/* Upload section */
+.upload-section {
+  @apply mb-8;
+}
+
+.upload-area {
+  @apply border-2 border-dashed border-border rounded-lg p-8 text-center bg-card hover:bg-accent transition-colors duration-200;
+}
+
+.upload-area.dragover {
+  @apply border-primary bg-accent;
+}
+
+.upload-button {
+  @apply bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+}
+
+.file-info {
+  @apply mt-4 p-4 bg-card border border-border rounded-lg;
+}
+
+/* Analysis section */
+.analysis-section {
+  @apply mb-8;
+}
+
+.prompt-input {
+  @apply w-full p-3 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent;
+}
+
+.analyze-button {
+  @apply bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+/* Results section */
+.results-section {
+  @apply space-y-6;
+}
+
+.analysis-result {
+  @apply bg-card border border-border rounded-lg p-6;
+}
+
+.cost-info {
+  @apply bg-muted border border-border rounded-lg p-4 text-sm;
+}
+
+/* Log entries */
+.log-entries {
+  @apply space-y-3;
+}
+
+.log-entry {
+  @apply bg-card border border-border rounded-lg overflow-hidden hover:bg-accent transition-colors duration-200;
+}
+
+.log-header {
+  @apply p-4 cursor-pointer flex items-center justify-between;
+}
+
+.log-metadata {
+  @apply flex items-center gap-2 flex-wrap;
+}
+
+.service-name {
+  @apply bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-medium;
+}
+
+.severity {
+  @apply px-2 py-1 rounded text-xs font-medium;
+}
+
+.severity.info {
+  @apply bg-blue-500/20 text-blue-400;
+}
+
+.severity.warn {
+  @apply bg-yellow-500/20 text-yellow-400;
+}
+
+.severity.error {
+  @apply bg-red-500/20 text-red-400;
+}
+
+.severity.fatal {
+  @apply bg-red-600/20 text-red-300;
+}
+
+.severity.debug {
+  @apply bg-gray-500/20 text-gray-400;
+}
+
+.severity-number {
+  @apply ml-1 opacity-70;
+}
+
+.trace-id, .span-id, .deployment, .namespace {
+  @apply bg-secondary text-secondary-foreground px-2 py-1 rounded text-xs;
+}
+
+.log-controls {
+  @apply flex items-center gap-3;
+}
+
+.timestamp {
+  @apply text-xs text-muted-foreground;
+}
+
+.expand-icon {
+  @apply text-muted-foreground;
+}
+
+.log-preview {
+  @apply px-4 pb-4;
+}
+
+.log-body-preview {
+  @apply text-sm text-muted-foreground;
+}
+
+.log-expanded {
+  @apply px-4 pb-4 space-y-3;
+}
+
+.log-body-full {
+  @apply text-sm;
+}
+
+.log-detail {
+  @apply text-sm text-muted-foreground;
+}
+
+.log-json {
+  @apply text-xs;
+}
+
+.json-content {
+  @apply bg-muted p-3 rounded border border-border overflow-x-auto text-xs font-mono;
+}
+
+/* Analysis content markdown */
+.analysis-content {
+  @apply prose prose-invert max-w-none;
+}
+
+.analysis-content h1,
+.analysis-content h2,
+.analysis-content h3,
+.analysis-content h4 {
+  @apply text-foreground font-semibold;
+}
+
+.analysis-content h1 {
+  @apply text-2xl border-b border-border pb-2;
+}
+
+.analysis-content h2 {
+  @apply text-xl;
+}
+
+.analysis-content h3 {
+  @apply text-lg;
+}
+
+.analysis-content ul,
+.analysis-content ol {
+  @apply my-4 pl-6;
+}
+
+.analysis-content li {
+  @apply mb-2;
+}
+
+.analysis-content strong {
+  @apply text-foreground font-semibold;
+}
+
+.analysis-content code {
+  @apply bg-muted px-1 py-0.5 rounded text-sm;
+}
+
+.analysis-content pre {
+  @apply bg-muted p-4 rounded border border-border overflow-x-auto;
+}
+
+.analysis-content blockquote {
+  @apply border-l-4 border-primary pl-4 italic text-muted-foreground;
+}
+
+/* Loading states */
+.loading {
+  @apply flex items-center justify-center py-8;
+}
+
+.loading-spinner {
+  @apply animate-spin rounded-full h-8 w-8 border-2 border-muted border-t-foreground;
+}
+
+/* Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fade-in 0.3s ease-out;
+}
