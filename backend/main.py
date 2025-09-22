@@ -67,6 +67,7 @@ class FilterExtractionResponse(BaseModel):
     reasoning: str
     input_tokens: Optional[int] = 0
     output_tokens: Optional[int] = 0
+    total_tokens: Optional[int] = 0
 
 class LogAnalysisResult(BaseModel):
     relevant_logs: List[Dict[str, Any]]
@@ -492,6 +493,8 @@ INCLUSIVE FILTERING GUIDELINES:
     
     def _multi_step_analysis(self, messages: List[Dict], original_prompt: str) -> FilterExtractionResponse:
         max_steps = 10
+        total_input_tokens = 0
+        total_output_tokens = 0
         
         for step in range(max_steps):
             try:
@@ -503,6 +506,11 @@ INCLUSIVE FILTERING GUIDELINES:
                     temperature=0.1
                 )
                 
+                # Track token usage
+                if hasattr(response, 'usage') and response.usage:
+                    total_input_tokens += response.usage.prompt_tokens
+                    total_output_tokens += response.usage.completion_tokens
+                
                 if response.choices[0].message.tool_calls:
                     tool_results = []
                     
@@ -513,7 +521,12 @@ INCLUSIVE FILTERING GUIDELINES:
                         elif tool_call.function.name == "create_filters":
                             result = self._handle_create_filters(tool_call)
                             if result.get("final_result"):
-                                return result["final_result"]
+                                # Add token usage to the final result
+                                final_result = result["final_result"]
+                                final_result.input_tokens = total_input_tokens
+                                final_result.output_tokens = total_output_tokens
+                                final_result.total_tokens = total_input_tokens + total_output_tokens
+                                return final_result
                             tool_results.append(result)
                     
                     messages.append({
@@ -536,7 +549,11 @@ INCLUSIVE FILTERING GUIDELINES:
                 print(f"Error in step {step}: {e}")
                 break
         
-        return self._create_fallback_filter(original_prompt)
+        fallback_result = self._create_fallback_filter(original_prompt)
+        fallback_result.input_tokens = total_input_tokens
+        fallback_result.output_tokens = total_output_tokens
+        fallback_result.total_tokens = total_input_tokens + total_output_tokens
+        return fallback_result
     
     def _handle_analyze_columns(self, tool_call) -> Dict:
         try:
@@ -697,10 +714,22 @@ class HybridLogAnalysisService:
         
         analysis_result = self._perform_final_analysis(relevant_logs, prompt)
         
+        # Combine token usage from filter extraction and final analysis
+        filter_input_tokens = filter_extraction.input_tokens or 0
+        filter_output_tokens = filter_extraction.output_tokens or 0
+        
+        analysis_input_tokens = analysis_result["cost_info"]["input_tokens"]
+        analysis_output_tokens = analysis_result["cost_info"]["output_tokens"]
+        
+        total_input_tokens = filter_input_tokens + analysis_input_tokens
+        total_output_tokens = filter_output_tokens + analysis_output_tokens
+        
+        combined_cost_info = self._calculate_cost(total_input_tokens, total_output_tokens)
+        
         return {
             "relevant_logs": analysis_result["relevant_logs"],
             "analysis": analysis_result["analysis"],
-            "cost_info": analysis_result["cost_info"],
+            "cost_info": combined_cost_info,
             "filtered_count": len(relevant_logs),
             "total_count": len(logs)
         }
@@ -759,14 +788,17 @@ Please provide a comprehensive analysis and identify the most relevant logs by t
                 {"role": "user", "content": user_prompt}
             ]
             
-            structured_response = generate_structured(
+            structured_response, usage = generate_structured(
                 messages=messages,
                 response_format=FinalAnalysisResponse,
-                model=MODEL_NAME
+                model=MODEL_NAME,
+                return_usage=True
             )
             
-            output_tokens = len(self.encoding.encode(structured_response.analysis))
-            cost_info = self._calculate_cost(input_tokens, output_tokens)
+            # Use actual token usage from the API response
+            final_input_tokens = usage.input_tokens if hasattr(usage, 'input_tokens') else input_tokens
+            final_output_tokens = usage.output_tokens if hasattr(usage, 'output_tokens') else len(self.encoding.encode(structured_response.analysis))
+            cost_info = self._calculate_cost(final_input_tokens, final_output_tokens)
             
             relevant_indices = structured_response.relevant_log_indices
             relevant_logs = [
@@ -784,7 +816,7 @@ Please provide a comprehensive analysis and identify the most relevant logs by t
             return {
                 "relevant_logs": analysis_logs[:5],
                 "analysis": f"## Analysis Error\n\nAnalysis completed with errors: {str(e)}\n\nShowing first 5 logs as fallback.",
-                "cost_info": self._calculate_cost(input_tokens, 0)
+                "cost_info": self._calculate_cost(final_input_tokens if 'final_input_tokens' in locals() else input_tokens, 0)
             }
     
     def _calculate_cost(self, input_tokens: int, output_tokens: int) -> Dict[str, Any]:
