@@ -4,7 +4,7 @@ For filtering, I considered multiple approaches. I implemented a multi-step, too
 
 During experimentation, I also noticed a high number of near-duplicate logs, we could have done clustering. Also, this negatively impacted the accuracy of vector semantic search. A useful enhancement here would be applying clustering  before indexing into the vector database. Although the initial indexing step would be slower, subsequent analysis and retrieval would become significantly faster and more precise.
 
-And for calculating cost I have hardcoded the token cost for gpt-4.1-mini 
+And for calculating cost I have hardcoded the token cost for gpt-4.1-mini. And used just prompt and completion tokens for cost calculation
 
 ## Backend Implementation
 - **DataFrame Processing**: Flattens NDJSON logs into pandas DataFrame with UUIDs
@@ -25,7 +25,7 @@ And for calculating cost I have hardcoded the token cost for gpt-4.1-mini
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  
 pip install -r requirements.txt
 cp env_example.txt .env
 # Edit .env and add your OPENAI_API_KEY
