@@ -52,4 +52,4 @@ For the filtering process, multiple approaches were explored. A multi-step, tool
 
 During experimentation, a high number of near-duplicate logs were observed, which adversely affected the accuracy of vector semantic search. Applying clustering before indexing into the vector database could significantly improve performance—although it would increase the initial indexing time, subsequent analysis and retrieval would become faster and more precise.
 
-For cost estimation, the token cost for gpt-4.1-mini is hardcoded.
+For cost estimation, the token cost for gpt-4.1-mini is hardcoded. 
