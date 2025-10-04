@@ -1,11 +1,3 @@
-The only challenging part was filtering the structured logs based on the natural language user prompt. The later steps, analyzing the filtered logs and identifying the most relevant ones were comparatively straightforward and could be handled via standard LLM calls.
-
-For filtering, I considered multiple approaches. I implemented a multi-step, tool-call based filtering over a pandas DataFrame. While this in-memory approach worked well for a small use case, a more scalable solution would be to index and filter logs using Elasticsearch or a similar system.
-
-During experimentation, I also noticed a high number of near-duplicate logs, we could have done clustering. Also, this negatively impacted the accuracy of vector semantic search. A useful enhancement here would be applying clustering  before indexing into the vector database. Although the initial indexing step would be slower, subsequent analysis and retrieval would become significantly faster and more precise.
-
-And for calculating cost I have hardcoded the token cost for gpt-4.1-mini. And used just prompt and completion tokens for cost calculation
-
 ## Backend Implementation
 - **DataFrame Processing**: Flattens NDJSON logs into pandas DataFrame with UUIDs
 - **Vector Indexing**: ChromaDB for semantic search
@@ -51,3 +43,13 @@ Frontend runs on: http://localhost:3000
 - **Backend**: FastAPI + ChromaDB + OpenAI + Pandas
 - **Frontend**: React + Shadcn/ui + Tailwind CSS (dark theme)
 - **LLM**: GPT-4.1-mini
+
+
+
+The primary challenge was filtering structured logs based on natural language user prompts. Subsequent steps—such as analyzing the filtered logs and identifying the most relevant entries—were comparatively straightforward and could be effectively handled through standard LLM calls.
+
+For the filtering process, multiple approaches were explored. A multi-step, tool-call–based filtering mechanism was implemented using a pandas DataFrame. While this in-memory method performed well for smaller datasets, a more scalable solution would involve indexing and querying logs using Elasticsearch or a similar search system.
+
+During experimentation, a high number of near-duplicate logs were observed, which adversely affected the accuracy of vector semantic search. Applying clustering before indexing into the vector database could significantly improve performance—although it would increase the initial indexing time, subsequent analysis and retrieval would become faster and more precise.
+
+For cost estimation, the token cost for gpt-4.1-mini is hardcoded.
